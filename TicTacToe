@@ -1,0 +1,154 @@
+import java.util.Scanner;
+public class ticTacToe2{
+  private static char[][] outputs = {{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}};
+  private static boolean win = false;
+  private static int[] inputs = new int[2];
+  private static final char[] COOR= {'x', 'y'};
+  private static int[] computerInputs = {0,0};
+  public static String displayBoard(){
+    return 
+      " " + outputs[0][0] + " | " + outputs[0][1] + " | " + outputs[0][2] + " " 
+      + "\n---+---+---\n" +
+      " " + outputs[1][0] + " | " + outputs[1][1] + " | " + outputs[1][2] + " "
+      + "\n---+---+---\n" +
+      " " + outputs[2][0] + " | " + outputs[2][1] + " | " + outputs[2][2] + " ";
+  }
+  private static boolean checkWin(int[] arr){
+    //column & row
+    if((outputs[arr[0]][arr[1]] == outputs[(arr[0]+1) % 3][arr[1]] && outputs[arr[0]][arr[1]] == outputs[(arr[0] + 2) % 3][arr[1]]) ||
+       (outputs[arr[0]][arr[1]] == outputs[arr[0]][(arr[1]+1) % 3] && outputs[arr[0]][inputs[1]] == outputs[arr[0]][(arr[1]+2) % 3])){
+      return true;
+    }//diagonals
+    else if(outputs[arr[0]][arr[1]] == outputs[0][0] && outputs[arr[0]][arr[1]] == outputs[1][1] && outputs[arr[0]][arr[1]] == outputs[2][2]||
+            outputs[arr[0]][arr[1]] == outputs[0][2] && outputs[arr[0]][arr[1]] == outputs[1][1] && outputs[arr[0]][arr[1]] == outputs[2][0]){
+      return true;
+    }
+    return false;
+  }
+  private static boolean isTie(){
+    for(int i = 0; i <  3; i++){
+      for(int j = 0; j <  3; j++){
+        if(outputs[i][j] == ' ')
+          return false;
+      }
+    }
+    return true;
+  }
+  public static boolean makeMove(int r, int c, char s){ //boolean to carry over win or lose
+    outputs[r][c] = s;
+    if(s == 'X' && checkWin(inputs)){
+      System.out.println("You win");
+      return true;
+    }else if(s == 'O' && checkWin(computerInputs)){
+      System.out.println("You lose");
+      return true;
+    }
+    return false;
+  }
+  public static void computerMoves(){
+    //optimal moves
+    //get center
+    if(outputs[1][1] == ' ' && (inputs[0] == inputs[1] || inputs[0] == 2 - inputs[1])){
+      computerInputs[0] = 1;
+      computerInputs[1] = 1;
+    }else{
+      //get opposite
+      computerInputs[0] = 2 - inputs[0];
+      computerInputs[1] = 2 - inputs[1];
+      //if taken
+      if(outputs[computerInputs[0]][computerInputs[1]] != ' '){
+        //are diagonals gone?
+        if(outputs[0][0] != ' ' && outputs[2][0] != ' ' && outputs[0][2] != ' ' && outputs[2][2] != ' '){
+           while(outputs[computerInputs[0]][computerInputs[1]] != ' '){
+            computerInputs[0] = (int)(Math.random() * 3);
+            computerInputs[1] = (int)(Math.random() * 3);
+          }
+        }else{
+          while(outputs[computerInputs[0]][computerInputs[1]] != ' '){
+            computerInputs[0] = (int)(Math.random() * 2) * 2;
+            computerInputs[1] = (int)(Math.random() * 2) * 2;
+          }
+        }
+      }
+    }
+    //prevent a win
+    for(int i = 0; i < 3; i++){
+      for(int j = 0; j < 3; j++){
+        //column && row
+        if((outputs[i][j] == ' ' && outputs[(i+1) % 3][j] == 'X' && outputs[(i+1) % 3][j] == outputs[(i+2) % 3][j])||
+           (outputs[i][j] == ' ' && outputs[i][(j+1) % 3] == 'X' && outputs[i][(j+1) % 3] == outputs[i][(j+2) % 3])){
+           computerInputs[0] = i;
+           computerInputs[1] = j;
+        }//NW to SE diagonals and NE to SW diagonals
+        else if((outputs[i][j] == ' ' && i == j && outputs[(i+1) % 3][(j+1) % 3] == 'X' && outputs[(i+2) % 3][(j+2) % 3] == outputs[(i+1) % 3][(j+1) % 3]) ||
+                (outputs[i][j] == ' ' && i == 2 - j && outputs[(i+2) % 3][(j+1) % 3] == 'X' && outputs[(i+4) % 3][(j+2) % 3] == outputs[(i+2) % 3][(j+1) % 3])){
+          computerInputs[0] = i;
+          computerInputs[1] = j;
+        }
+      } 
+    }
+    //go for the win (has priority over preventing user from winning)
+    for(int i = 0; i <3; i++){
+      for(int j = 0; j < 3; j++){
+        if((outputs[i][j] == ' ' && outputs[(i+1) % 3][j] == 'O' && outputs[(i+1) % 3][j] == outputs[(i+2) % 3][j])||
+           (outputs[i][j] == ' ' && outputs[i][(j+1) % 3] == 'O' && outputs[i][(j+1) % 3] == outputs[i][(j+2) % 3])){
+           computerInputs[0] = i;
+           computerInputs[1] = j;
+        }//NW to SE diagonals and NE to SW diagonals
+        else if((outputs[i][j] == ' ' && i == j && outputs[(i+1) % 3][(j+1) % 3] == 'O' && outputs[(i+2) % 3][(j+2) % 3] == outputs[(i+1) % 3][(j+1) % 3]) ||
+                (outputs[i][j] == ' ' && i == 2 - j && outputs[(i+2) % 3][(j+1) % 3] == 'O' && outputs[(i+4) % 3][(j+2) % 3] == outputs[(i+2) % 3][(j+1) % 3])){
+          computerInputs[0] = i;
+          computerInputs[1] = j;
+        }
+      }
+    }
+    System.out.println("" + computerInputs[0] + computerInputs[1]); 
+  }
+  public static void main(String[] args){
+    Scanner kb = new Scanner(System.in);
+    System.out.println(displayBoard());
+    boolean replay = true;
+    int validInputs;
+    while(replay){//replay loop
+      while(!win){//game loop
+        validInputs = 0;
+        while(validInputs < 2){ // check for valid input
+          System.out.println("What is your " + COOR[validInputs] +" coordinate?");
+          inputs[validInputs] = Integer.parseInt(kb.nextLine());
+          if(!(inputs[validInputs] < 0 || inputs[validInputs] > 2)){//within range
+            if(validInputs == 1 && outputs[inputs[0]][inputs[1]] != ' '){//if space taken up
+              validInputs = 0;
+            }else{
+              validInputs++;
+            }
+          }
+        }
+        if(makeMove(inputs[0], inputs[1], 'X')){
+          win = true;
+        }else if(isTie()){
+          win = true;
+        }
+        else{
+          computerMoves();
+          if(makeMove(computerInputs[0], computerInputs[1], 'O')){
+            win = true;
+          }
+        }
+        System.out.println(displayBoard());
+      }
+      System.out.println("Rematch? Say yes if yes.");
+      if(!kb.nextLine().toLowerCase().equals("yes")){
+        replay = false;
+      }else{
+        win = false;
+         for(int i = 0; i <  3; i++){
+           for(int j = 0; j <  3; j++){
+             outputs[i][j] = ' ';
+           }
+         }
+        System.out.println(displayBoard());
+      }
+    }
+    kb.close();
+  }
+}
